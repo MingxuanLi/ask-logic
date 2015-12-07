@@ -432,7 +432,7 @@ SurveyState.prototype.handleFieldChanged = function(fieldId, suppressAutoAdvance
 
     var currPage = this.schema.pages[this.response.pageIndex] ;
 
-    if (this.config.autoAdvance && currPage.canAutoadvance && !suppressAutoAdvance) {
+    if (this.config.autoAdvance && currPage && currPage.canAutoadvance && !suppressAutoAdvance) {
 
         var readyToAdvance = allRequiredQuestionsAnswered(this) ;
 
