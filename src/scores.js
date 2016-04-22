@@ -28,14 +28,14 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
             range[1] = 0;
         }
 
-        _.each(field.choices, function(choice) {
+        _.each(field.choices, _.bind(function(choice) {
             if (range[0] == null || choice.weight < range[0])
                 range[0] = choice.weight ;
 
             if (range[1] == null || choice.weight > range[1])
                 range[1] = choice.weight ;
 
-        }, this) ;
+        }, this)) ;
 
         return range ;
     }
@@ -46,13 +46,13 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
 
         var weight = 0 ;
 
-        _.each(field.choices, function(choice) {
+        _.each(field.choices, _.bind(function(choice) {
 
             if (_.contains(answerChoices, Normalizer.normalize(choice.name))){
                 weight = weight + choice.weight ;
             }
 
-        }, this) ;
+        }, this)) ;
 
         return weight ;
     }
@@ -66,7 +66,7 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
             range[1] = 0;
         }
 
-        _.each(field.choices, function(choice) {
+        _.each(field.choices, _.bind(function(choice) {
 
             if (choice.weight >= 0) {
 
@@ -89,7 +89,7 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
                     range[1] = choice.weight;
             }
 
-        }, this) ;
+        }, this)) ;
 
         return range ;
     }
@@ -135,19 +135,19 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
 
         var relevantFieldRuleIndexes = [] ;
 
-        _.each(field.sources, function(source){
+        _.each(field.sources, _.bind(function(source){
 
             var sourceField = survey.fieldsById[source.id];
 
-            _.each(sourceField.affectingShowFieldRules, function(rule) {
+            _.each(sourceField.affectingShowFieldRules, _.bind(function(rule) {
                 relevantFieldRuleIndexes.push(rule.index) ;
-            }, this) ;
+            }, this)) ;
 
-            _.each(sourceField.affectingHideFieldRules, function(rule) {
+            _.each(sourceField.affectingHideFieldRules, _.bind(function(rule) {
                 relevantFieldRuleIndexes.push(rule.index) ;
-            }, this) ;
+            }, this)) ;
 
-        }, this) ;
+        }, this)) ;
 
         relevantFieldRuleIndexes = _.uniq(relevantFieldRuleIndexes) ;
         console.log(field.id + " is effected by rules [" + relevantFieldRuleIndexes.join(",") + "]") ;
@@ -194,7 +194,7 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
 
         var categoryNormalizedPercent = 0 ;
 
-        _.each(field.categories, function(category, index) {
+        _.each(field.categories, _.bind(function(category, index) {
 
             //console.log(score + " [" + )
 
@@ -212,7 +212,7 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
                 categoryNormalizedPercent = categoryNormalizedPercent + (withinCategoryPercentage * categoryPercent) ;
             }
 
-        }, this) ;
+        }, this)) ;
 
         return categoryNormalizedPercent * 100 ;
     }

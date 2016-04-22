@@ -352,7 +352,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
         var fieldIdsByTag = {} ;
 
-        _.each(schema.fields, function(field) {
+        _.each(schema.fields, _.bind(function(field) {
 
             if (!field.tags || !field.tags.length)
                 return ;
@@ -360,15 +360,15 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
             if (field.type == "pageBreak")
                 return ;
 
-            _.each(field.tags, function(tag) {
+            _.each(field.tags, _.bind(function(tag) {
 
                 if (!fieldIdsByTag[tag])
                     fieldIdsByTag[tag] = [] ;
 
                 fieldIdsByTag[tag].push(field.id) ;
-            }, this) ;
+            }, this)) ;
 
-        }, this) ;
+        }, this)) ;
 
         Logger.debug("fieldIds: ", logpath) ;
         Logger.debug(fieldIdsByTag, logpath) ;
@@ -380,7 +380,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
         var pageIdsByTag = {} ;
 
-        _.each(schema.fields, function(field) {
+        _.each(schema.fields, _.bind(function(field) {
 
             if (!field.tags || !field.tags.length)
                 return ;
@@ -388,15 +388,15 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
             if (field.type != "pageBreak")
                 return ;
 
-            _.each(field.tags, function(tag) {
+            _.each(field.tags, _.bind(function(tag) {
 
                 if (!pageIdsByTag[tag])
                     pageIdsByTag[tag] = [] ;
 
                 pageIdsByTag[tag].push(field.id) ;
-            }, this) ;
+            }, this)) ;
 
-        }, this) ;
+        }, this)) ;
 
         Logger.debug("pageIdsByTag", "ask.logic.state.init") ;
         Logger.debug(pageIdsByTag, "ask.logic.state.init") ;
@@ -427,7 +427,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
         if (!field.choiceSources)
             return ;
 
-        _.each(field.choiceSources, function(choiceSourceId) {
+        _.each(field.choiceSources, _.bind(function(choiceSourceId) {
 
             var choiceSource = fieldsById[choiceSourceId] ;
 
@@ -441,7 +441,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
             if (!_.contains(choiceSource.choiceDestinations, field.id))
                 choiceSource.choiceDestinations.push(field.id) ;
-        }, this) ;
+        }, this)) ;
     }
 
     function backlinkScoreSources(field, fieldsById) {
@@ -452,7 +452,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
         if (!field.sources)
             return ;
 
-        _.each(field.sources, function(source) {
+        _.each(field.sources, _.bind(function(source) {
 
             var sourceField = fieldsById[source.id] ;
 
@@ -466,7 +466,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
             sourceField.affectedScoreFields.push(field.id) ;
 
-        }, this) ;
+        }, this)) ;
     }
 
     function initializeSinglechoice(field) {
@@ -561,26 +561,26 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
         //gather questions whose answers effect the trigger state of this rule
         //and tell them about it.
-        _.each(TriggerStates.getQuestionIds(rule.trigger), function(questionId) {
+        _.each(TriggerStates.getQuestionIds(rule.trigger), _.bind(function(questionId) {
             var field = schema.fieldsById[questionId] ;
             field.affectedFieldRules.push(rule) ;
-        }, this) ;
+        }, this)) ;
 
         //gather fields that might be shown by this rule, and tell them about this rule.
         var fieldIdsToShow = gatherAffectedFieldIds(rule, 'show', schema.fieldIdsByTag) ;
         //Logger.debug("fields shown by " + frIndex, 'ask.logic.state.init') ;
         //Logger.debug(fieldIdsToShow, 'ask.logic.state.init') ;
-        _.each(fieldIdsToShow, function(fieldId) {
+        _.each(fieldIdsToShow, _.bind(function(fieldId) {
             var field = schema.fieldsById[fieldId] ;
             field.affectingShowFieldRules.push(rule) ;
-        }, this) ;
+        }, this)) ;
 
         //gather fields that might be hidden by this rule, and tell them about this rule.
         var fieldIdsToHide = gatherAffectedFieldIds(rule, 'hide', schema.fieldIdsByTag) ;
-        _.each(fieldIdsToHide, function(fieldId) {
+        _.each(fieldIdsToHide, _.bind(function(fieldId) {
             var field = schema.fieldsById[fieldId] ;
             field.affectingHideFieldRules.push(rule) ;
-        }, this) ;
+        }, this)) ;
 
         return _.uniq(_.union(fieldIdsToShow, fieldIdsToHide)) ;
     }
@@ -590,19 +590,19 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
         //gather questions whose answers effect the trigger state of this rule
         //and tell them about it.
 
-        _.each(TriggerStates.getQuestionIds(rule.trigger), function(questionId) {
+        _.each(TriggerStates.getQuestionIds(rule.trigger), _.bind(function(questionId) {
 
             var field = fieldsById[questionId] ;
 
             field.affectedPageRules.push(rule) ;
-        }, this) ;
+        }, this)) ;
     }
 
     function gatherAffectedFieldIds(fieldRule, action, fieldIdsByTag) {
 
         var affectedFieldIds = [] ;
 
-        _.each(fieldRule.actions, function(a) {
+        _.each(fieldRule.actions, _.bind(function(a) {
 
             if (a.action != action)
                 return ;
@@ -616,11 +616,11 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
             if (!fieldIdsByTag[a.tag])
                 return ;
 
-            _.each(fieldIdsByTag[a.tag], function(fieldId) {
+            _.each(fieldIdsByTag[a.tag], _.bind(function(fieldId) {
                 affectedFieldIds.push(fieldId) ;
-            }, this) ;
+            }, this)) ;
 
-        }, this) ;
+        }, this)) ;
 
         Logger.debug("affected field ids for rule " + fieldRule.index + " " + action, logpath) ;
         Logger.debug(affectedFieldIds, logpath) ;
@@ -635,7 +635,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
         var totalQuestions = 0 ;
         var validQuestions = 0 ;
 
-        _.each(page.relevantFields, function(field) {
+        _.each(page.relevantFields, _.bind(function(field) {
 
             if (field.superType != 'question')
                 return ;
@@ -652,7 +652,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
                     break ;
             } ;
 
-        }, this) ;
+        }, this)) ;
 
         if (validQuestions == 0 || validQuestions > 1)
             return false ;
@@ -690,7 +690,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
             var currentPage ;
 
-            _.each(s.fields, function(f, fIndex) {
+            _.each(s.fields, _.bind(function(f, fIndex) {
 
                 var field = _.cloneDeep(f) ;
 
@@ -719,7 +719,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
                     schema.fields.push(field) ;
                     schema.fieldsById[field.id] = field ;
                 }
-            }, this) ;
+            }, this)) ;
 
             Logger.debug("fields initialized", logpath) ;
 
@@ -730,7 +730,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
 
             schema.fieldRules = [] ;
-            _.each(s.fieldRules, function(fr, frIndex) {
+            _.each(s.fieldRules, _.bind(function(fr, frIndex) {
 
                 var fieldRule = _.cloneDeep(fr) ;
                 fieldRule.index = frIndex ;
@@ -739,7 +739,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
                 schema.fieldRules.push(fieldRule) ;
 
-            }, this) ;
+            }, this)) ;
 
             Logger.debug("field rules initialized", logpath) ;
 
@@ -748,7 +748,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
             //also attach to each field a list of relevant field rules that might be effected by answers to the field
             schema.pageRules = [] ;
 
-            _.each(s.pageRules, function(pr, prIndex) {
+            _.each(s.pageRules, _.bind(function(pr, prIndex) {
 
                 var pageRule = _.cloneDeep(pr) ;
                 pageRule.index = prIndex ;
@@ -757,7 +757,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
                 schema.pageRules.push(pageRule) ;
 
-            }, this) ;
+            }, this)) ;
 
             Logger.debug("set up page rules", "ask.logic.state.init") ;
 
@@ -907,14 +907,14 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
             range[1] = 0;
         }
 
-        _.each(field.choices, function(choice) {
+        _.each(field.choices, _.bind(function(choice) {
             if (range[0] == null || choice.weight < range[0])
                 range[0] = choice.weight ;
 
             if (range[1] == null || choice.weight > range[1])
                 range[1] = choice.weight ;
 
-        }, this) ;
+        }, this)) ;
 
         return range ;
     }
@@ -925,13 +925,13 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
 
         var weight = 0 ;
 
-        _.each(field.choices, function(choice) {
+        _.each(field.choices, _.bind(function(choice) {
 
             if (_.contains(answerChoices, Normalizer.normalize(choice.name))){
                 weight = weight + choice.weight ;
             }
 
-        }, this) ;
+        }, this)) ;
 
         return weight ;
     }
@@ -945,7 +945,7 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
             range[1] = 0;
         }
 
-        _.each(field.choices, function(choice) {
+        _.each(field.choices, _.bind(function(choice) {
 
             if (choice.weight >= 0) {
 
@@ -968,7 +968,7 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
                     range[1] = choice.weight;
             }
 
-        }, this) ;
+        }, this)) ;
 
         return range ;
     }
@@ -1014,19 +1014,19 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
 
         var relevantFieldRuleIndexes = [] ;
 
-        _.each(field.sources, function(source){
+        _.each(field.sources, _.bind(function(source){
 
             var sourceField = survey.fieldsById[source.id];
 
-            _.each(sourceField.affectingShowFieldRules, function(rule) {
+            _.each(sourceField.affectingShowFieldRules, _.bind(function(rule) {
                 relevantFieldRuleIndexes.push(rule.index) ;
-            }, this) ;
+            }, this)) ;
 
-            _.each(sourceField.affectingHideFieldRules, function(rule) {
+            _.each(sourceField.affectingHideFieldRules, _.bind(function(rule) {
                 relevantFieldRuleIndexes.push(rule.index) ;
-            }, this) ;
+            }, this)) ;
 
-        }, this) ;
+        }, this)) ;
 
         relevantFieldRuleIndexes = _.uniq(relevantFieldRuleIndexes) ;
         console.log(field.id + " is effected by rules [" + relevantFieldRuleIndexes.join(",") + "]") ;
@@ -1073,7 +1073,7 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
 
         var categoryNormalizedPercent = 0 ;
 
-        _.each(field.categories, function(category, index) {
+        _.each(field.categories, _.bind(function(category, index) {
 
             //console.log(score + " [" + )
 
@@ -1091,7 +1091,7 @@ askjs_core.factory('ScoreCalculator', ['Logger','AnswerStates', 'Normalizer', fu
                 categoryNormalizedPercent = categoryNormalizedPercent + (withinCategoryPercentage * categoryPercent) ;
             }
 
-        }, this) ;
+        }, this)) ;
 
         return categoryNormalizedPercent * 100 ;
     }
@@ -1174,9 +1174,9 @@ askjs_core.factory('SurveyStates', ['Logger','TriggerStates', 'AnswerStates', 'I
 
         schema.page = schema.pages[response.pageIndex] ;
 
-        _.each(schema.pages, function(page, pageIndex) {
+        _.each(schema.pages, _.bind(function(page, pageIndex) {
             page.current = (pageIndex == response.pageIndex) ;
-        }, this) ;
+        }, this)) ;
     }
 
 
@@ -1201,7 +1201,7 @@ askjs_core.factory('SurveyStates', ['Logger','TriggerStates', 'AnswerStates', 'I
 
         var choiceSources = [] ;
 
-        _.each(field.choiceSources, function(choiceSourceId) {
+        _.each(field.choiceSources, _.bind(function(choiceSourceId) {
 
             var choiceSource = fieldsById[choiceSourceId] ;
 
@@ -1212,7 +1212,7 @@ askjs_core.factory('SurveyStates', ['Logger','TriggerStates', 'AnswerStates', 'I
 
             choiceSources.push(choiceSource) ;
 
-        }, this) ;
+        }, this)) ;
 
         field.autochoices = ChoiceGatherer.gatherChoices(choiceSources, response) ;
    }
@@ -1309,7 +1309,7 @@ askjs_core.factory('SurveyStates', ['Logger','TriggerStates', 'AnswerStates', 'I
 
         var score = 0 ;
 
-        _.each(scoreField.sources, function(source) {
+        _.each(scoreField.sources, _.bind(function(source) {
 
             var sourceField = state.schema.fieldsById[source.id] ;
             var sourceResponse = getFieldResponse(sourceField, state) ;
@@ -1317,7 +1317,7 @@ askjs_core.factory('SurveyStates', ['Logger','TriggerStates', 'AnswerStates', 'I
             if (sourceResponse && sourceResponse.score)
                 score = score + sourceResponse.score ;
 
-        }, this) ;
+        }, this)) ;
 
         var scoreResponse = getFieldResponse(scoreField, state) ;
 
@@ -1381,13 +1381,13 @@ function SurveyState(schema, response, config) {
     } else {
         this.config = _.clone(config);
 
-        _.each(defaultConfig, function (value, key) {
+        _.each(defaultConfig, _.bind(function (value, key) {
 
             console.log(" - " + key + ":" + value) ;
 
             if (this.config[key] === null || this.config[key] === undefined)
                 this.config[key] = value;
-        }, this);
+        }, this));
     }
 
     console.log(this.config) ;
@@ -1403,16 +1403,16 @@ SurveyState.prototype.handleResponseUpdated = function(response) {
     this.response = Initializer.initializeResponse(response, this.schema) ;
 
     //check state of triggers for all fields
-    _.each(this.schema.fields, function(field) {
+    _.each(this.schema.fields, _.bind(function(field) {
 
         this.handleFieldChanged(field.id, true) ;
 
-    }, this) ;
+    }, this)) ;
 
     //check visibility of all fields
-    _.each(this.schema.fields, function(field) {
+    _.each(this.schema.fields, _.bind(function(field) {
         updateVisibility(field) ;
-    }, this) ;
+    }, this)) ;
 
     handleCurrentPageChanged(this.response, this.schema) ;
 }
@@ -1547,7 +1547,7 @@ SurveyState.prototype.handleFieldChanged = function(fieldId, suppressAutoAdvance
         }
     }
 
-    _.each(field.affectedFieldRules, function(fieldRule) {
+    _.each(field.affectedFieldRules, _.bind(function(fieldRule) {
 
         Logger.debug("  checking fieldRule: " + fieldRule.index, "ask.logic.state.fieldRules");
 
@@ -1558,9 +1558,9 @@ SurveyState.prototype.handleFieldChanged = function(fieldId, suppressAutoAdvance
             this.handleFieldRuleStateChanged(fieldRule) ;
         }
 
-    }, this) ;
+    }, this)) ;
 
-    _.each(field.affectedPageRules, function(pageRule) {
+    _.each(field.affectedPageRules, _.bind(function(pageRule) {
 
         Logger.debug("  checking pageRule: " + pageRule.index, "ask.logic.state.pageRules");
 
@@ -1573,18 +1573,18 @@ SurveyState.prototype.handleFieldChanged = function(fieldId, suppressAutoAdvance
             this.handlePageRuleStateChanged(pageRule) ;
         }
 
-    }, this) ;
+    }, this)) ;
 
 
-    _.each(field.choiceDestinations, function(choiceDestinationId){
+    _.each(field.choiceDestinations, _.bind(function(choiceDestinationId){
         handleChoiceSourcesChanged(choiceDestinationId, this.schema.fieldsById, this.response) ;
-    }, this) ;
+    }, this)) ;
 
-    _.each(field.affectedScoreFields, function(scoreFieldId) {
+    _.each(field.affectedScoreFields, _.bind(function(scoreFieldId) {
         var scoreField = this.schema.fieldsById[scoreFieldId] ;
 
         handleScoreSourcesChanged(scoreField, this) ;
-    }, this) ;
+    }, this)) ;
 
     var currPage = this.schema.pages[this.response.pageIndex] ;
 
@@ -1610,7 +1610,7 @@ SurveyState.prototype.handleFieldRuleStateChanged = function(rule) {
     Logger.debug("field rule state changed to " + rule.fired, "ask.logic.state.rules") ;
     Logger.debug(rule.affectedFieldIds, "ask.logic.state.rules") ;
 
-    _.each(rule.affectedFieldIds, function(fieldId) {
+    _.each(rule.affectedFieldIds, _.bind(function(fieldId) {
 
         var field = this.schema.fieldsById[fieldId] ;
 
@@ -1636,7 +1636,7 @@ SurveyState.prototype.handleFieldRuleStateChanged = function(rule) {
 
         updateVisibility(field) ;
 
-    }, this) ;
+    }, this)) ;
 
 }
 
@@ -1652,7 +1652,7 @@ SurveyState.prototype.handlePageRuleStateChanged = function(rule) {
     Logger.debug(questionIds, "ask.logic.state.pageRules") ;
     //identify earliest effected page, which is the next page after the last trigger
     var earliestEffectedPageIndex ;
-    _.each(questionIds, function(questionId) {
+    _.each(questionIds, _.bind(function(questionId) {
 
         var question = this.schema.fieldsById[questionId] ;
 
@@ -1661,12 +1661,12 @@ SurveyState.prototype.handlePageRuleStateChanged = function(rule) {
         if (earliestEffectedPageIndex == null || earliestEffectedPageIndex < question.pageIndex)
             earliestEffectedPageIndex = question.pageIndex ;
 
-    }, this) ;
+    }, this)) ;
     earliestEffectedPageIndex ++ ;
 
     Logger.debug("earliestEffectedPageIndex: " + earliestEffectedPageIndex, "ask.logic.state.pageRules") ;
 
-    _.each(rule.actions, function(action) {
+    _.each(rule.actions, _.bind(function(action) {
 
         switch (action.action) {
 
@@ -1717,7 +1717,7 @@ SurveyState.prototype.handlePageRuleStateChanged = function(rule) {
 
                 break ;
         }
-    }, this) ;
+    }, this)) ;
 
 }
 

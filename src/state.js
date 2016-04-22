@@ -18,9 +18,9 @@ askjs_core.factory('SurveyStates', ['Logger','TriggerStates', 'AnswerStates', 'I
 
         schema.page = schema.pages[response.pageIndex] ;
 
-        _.each(schema.pages, function(page, pageIndex) {
+        _.each(schema.pages, _.bind(function(page, pageIndex) {
             page.current = (pageIndex == response.pageIndex) ;
-        }, this) ;
+        }, this)) ;
     }
 
 
@@ -45,7 +45,7 @@ askjs_core.factory('SurveyStates', ['Logger','TriggerStates', 'AnswerStates', 'I
 
         var choiceSources = [] ;
 
-        _.each(field.choiceSources, function(choiceSourceId) {
+        _.each(field.choiceSources, _.bind(function(choiceSourceId) {
 
             var choiceSource = fieldsById[choiceSourceId] ;
 
@@ -56,7 +56,7 @@ askjs_core.factory('SurveyStates', ['Logger','TriggerStates', 'AnswerStates', 'I
 
             choiceSources.push(choiceSource) ;
 
-        }, this) ;
+        }, this)) ;
 
         field.autochoices = ChoiceGatherer.gatherChoices(choiceSources, response) ;
    }
@@ -153,7 +153,7 @@ askjs_core.factory('SurveyStates', ['Logger','TriggerStates', 'AnswerStates', 'I
 
         var score = 0 ;
 
-        _.each(scoreField.sources, function(source) {
+        _.each(scoreField.sources, _.bind(function(source) {
 
             var sourceField = state.schema.fieldsById[source.id] ;
             var sourceResponse = getFieldResponse(sourceField, state) ;
@@ -161,7 +161,7 @@ askjs_core.factory('SurveyStates', ['Logger','TriggerStates', 'AnswerStates', 'I
             if (sourceResponse && sourceResponse.score)
                 score = score + sourceResponse.score ;
 
-        }, this) ;
+        }, this)) ;
 
         var scoreResponse = getFieldResponse(scoreField, state) ;
 
@@ -225,13 +225,13 @@ function SurveyState(schema, response, config) {
     } else {
         this.config = _.clone(config);
 
-        _.each(defaultConfig, function (value, key) {
+        _.each(defaultConfig, _.bind(function (value, key) {
 
             console.log(" - " + key + ":" + value) ;
 
             if (this.config[key] === null || this.config[key] === undefined)
                 this.config[key] = value;
-        }, this);
+        }, this));
     }
 
     console.log(this.config) ;
@@ -247,16 +247,16 @@ SurveyState.prototype.handleResponseUpdated = function(response) {
     this.response = Initializer.initializeResponse(response, this.schema) ;
 
     //check state of triggers for all fields
-    _.each(this.schema.fields, function(field) {
+    _.each(this.schema.fields, _.bind(function(field) {
 
         this.handleFieldChanged(field.id, true) ;
 
-    }, this) ;
+    }, this)) ;
 
     //check visibility of all fields
-    _.each(this.schema.fields, function(field) {
+    _.each(this.schema.fields, _.bind(function(field) {
         updateVisibility(field) ;
-    }, this) ;
+    }, this)) ;
 
     handleCurrentPageChanged(this.response, this.schema) ;
 }
@@ -391,7 +391,7 @@ SurveyState.prototype.handleFieldChanged = function(fieldId, suppressAutoAdvance
         }
     }
 
-    _.each(field.affectedFieldRules, function(fieldRule) {
+    _.each(field.affectedFieldRules, _.bind(function(fieldRule) {
 
         Logger.debug("  checking fieldRule: " + fieldRule.index, "ask.logic.state.fieldRules");
 
@@ -402,9 +402,9 @@ SurveyState.prototype.handleFieldChanged = function(fieldId, suppressAutoAdvance
             this.handleFieldRuleStateChanged(fieldRule) ;
         }
 
-    }, this) ;
+    }, this)) ;
 
-    _.each(field.affectedPageRules, function(pageRule) {
+    _.each(field.affectedPageRules, _.bind(function(pageRule) {
 
         Logger.debug("  checking pageRule: " + pageRule.index, "ask.logic.state.pageRules");
 
@@ -417,18 +417,18 @@ SurveyState.prototype.handleFieldChanged = function(fieldId, suppressAutoAdvance
             this.handlePageRuleStateChanged(pageRule) ;
         }
 
-    }, this) ;
+    }, this)) ;
 
 
-    _.each(field.choiceDestinations, function(choiceDestinationId){
+    _.each(field.choiceDestinations, _.bind(function(choiceDestinationId){
         handleChoiceSourcesChanged(choiceDestinationId, this.schema.fieldsById, this.response) ;
-    }, this) ;
+    }, this)) ;
 
-    _.each(field.affectedScoreFields, function(scoreFieldId) {
+    _.each(field.affectedScoreFields, _.bind(function(scoreFieldId) {
         var scoreField = this.schema.fieldsById[scoreFieldId] ;
 
         handleScoreSourcesChanged(scoreField, this) ;
-    }, this) ;
+    }, this)) ;
 
     var currPage = this.schema.pages[this.response.pageIndex] ;
 
@@ -454,7 +454,7 @@ SurveyState.prototype.handleFieldRuleStateChanged = function(rule) {
     Logger.debug("field rule state changed to " + rule.fired, "ask.logic.state.rules") ;
     Logger.debug(rule.affectedFieldIds, "ask.logic.state.rules") ;
 
-    _.each(rule.affectedFieldIds, function(fieldId) {
+    _.each(rule.affectedFieldIds, _.bind(function(fieldId) {
 
         var field = this.schema.fieldsById[fieldId] ;
 
@@ -480,7 +480,7 @@ SurveyState.prototype.handleFieldRuleStateChanged = function(rule) {
 
         updateVisibility(field) ;
 
-    }, this) ;
+    }, this)) ;
 
 }
 
@@ -496,7 +496,7 @@ SurveyState.prototype.handlePageRuleStateChanged = function(rule) {
     Logger.debug(questionIds, "ask.logic.state.pageRules") ;
     //identify earliest effected page, which is the next page after the last trigger
     var earliestEffectedPageIndex ;
-    _.each(questionIds, function(questionId) {
+    _.each(questionIds, _.bind(function(questionId) {
 
         var question = this.schema.fieldsById[questionId] ;
 
@@ -505,12 +505,12 @@ SurveyState.prototype.handlePageRuleStateChanged = function(rule) {
         if (earliestEffectedPageIndex == null || earliestEffectedPageIndex < question.pageIndex)
             earliestEffectedPageIndex = question.pageIndex ;
 
-    }, this) ;
+    }, this)) ;
     earliestEffectedPageIndex ++ ;
 
     Logger.debug("earliestEffectedPageIndex: " + earliestEffectedPageIndex, "ask.logic.state.pageRules") ;
 
-    _.each(rule.actions, function(action) {
+    _.each(rule.actions, _.bind(function(action) {
 
         switch (action.action) {
 
@@ -561,7 +561,7 @@ SurveyState.prototype.handlePageRuleStateChanged = function(rule) {
 
                 break ;
         }
-    }, this) ;
+    }, this)) ;
 
 }
 

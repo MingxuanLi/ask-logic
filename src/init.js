@@ -11,7 +11,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
         var fieldIdsByTag = {} ;
 
-        _.each(schema.fields, function(field) {
+        _.each(schema.fields, _.bind(function(field) {
 
             if (!field.tags || !field.tags.length)
                 return ;
@@ -19,15 +19,15 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
             if (field.type == "pageBreak")
                 return ;
 
-            _.each(field.tags, function(tag) {
+            _.each(field.tags, _.bind(function(tag) {
 
                 if (!fieldIdsByTag[tag])
                     fieldIdsByTag[tag] = [] ;
 
                 fieldIdsByTag[tag].push(field.id) ;
-            }, this) ;
+            }, this)) ;
 
-        }, this) ;
+        }, this)) ;
 
         Logger.debug("fieldIds: ", logpath) ;
         Logger.debug(fieldIdsByTag, logpath) ;
@@ -39,7 +39,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
         var pageIdsByTag = {} ;
 
-        _.each(schema.fields, function(field) {
+        _.each(schema.fields, _.bind(function(field) {
 
             if (!field.tags || !field.tags.length)
                 return ;
@@ -47,15 +47,15 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
             if (field.type != "pageBreak")
                 return ;
 
-            _.each(field.tags, function(tag) {
+            _.each(field.tags, _.bind(function(tag) {
 
                 if (!pageIdsByTag[tag])
                     pageIdsByTag[tag] = [] ;
 
                 pageIdsByTag[tag].push(field.id) ;
-            }, this) ;
+            }, this)) ;
 
-        }, this) ;
+        }, this)) ;
 
         Logger.debug("pageIdsByTag", "ask.logic.state.init") ;
         Logger.debug(pageIdsByTag, "ask.logic.state.init") ;
@@ -86,7 +86,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
         if (!field.choiceSources)
             return ;
 
-        _.each(field.choiceSources, function(choiceSourceId) {
+        _.each(field.choiceSources, _.bind(function(choiceSourceId) {
 
             var choiceSource = fieldsById[choiceSourceId] ;
 
@@ -100,7 +100,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
             if (!_.contains(choiceSource.choiceDestinations, field.id))
                 choiceSource.choiceDestinations.push(field.id) ;
-        }, this) ;
+        }, this)) ;
     }
 
     function backlinkScoreSources(field, fieldsById) {
@@ -111,7 +111,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
         if (!field.sources)
             return ;
 
-        _.each(field.sources, function(source) {
+        _.each(field.sources, _.bind(function(source) {
 
             var sourceField = fieldsById[source.id] ;
 
@@ -125,7 +125,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
             sourceField.affectedScoreFields.push(field.id) ;
 
-        }, this) ;
+        }, this)) ;
     }
 
     function initializeSinglechoice(field) {
@@ -220,26 +220,26 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
         //gather questions whose answers effect the trigger state of this rule
         //and tell them about it.
-        _.each(TriggerStates.getQuestionIds(rule.trigger), function(questionId) {
+        _.each(TriggerStates.getQuestionIds(rule.trigger), _.bind(function(questionId) {
             var field = schema.fieldsById[questionId] ;
             field.affectedFieldRules.push(rule) ;
-        }, this) ;
+        }, this)) ;
 
         //gather fields that might be shown by this rule, and tell them about this rule.
         var fieldIdsToShow = gatherAffectedFieldIds(rule, 'show', schema.fieldIdsByTag) ;
         //Logger.debug("fields shown by " + frIndex, 'ask.logic.state.init') ;
         //Logger.debug(fieldIdsToShow, 'ask.logic.state.init') ;
-        _.each(fieldIdsToShow, function(fieldId) {
+        _.each(fieldIdsToShow, _.bind(function(fieldId) {
             var field = schema.fieldsById[fieldId] ;
             field.affectingShowFieldRules.push(rule) ;
-        }, this) ;
+        }, this)) ;
 
         //gather fields that might be hidden by this rule, and tell them about this rule.
         var fieldIdsToHide = gatherAffectedFieldIds(rule, 'hide', schema.fieldIdsByTag) ;
-        _.each(fieldIdsToHide, function(fieldId) {
+        _.each(fieldIdsToHide, _.bind(function(fieldId) {
             var field = schema.fieldsById[fieldId] ;
             field.affectingHideFieldRules.push(rule) ;
-        }, this) ;
+        }, this)) ;
 
         return _.uniq(_.union(fieldIdsToShow, fieldIdsToHide)) ;
     }
@@ -249,19 +249,19 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
         //gather questions whose answers effect the trigger state of this rule
         //and tell them about it.
 
-        _.each(TriggerStates.getQuestionIds(rule.trigger), function(questionId) {
+        _.each(TriggerStates.getQuestionIds(rule.trigger), _.bind(function(questionId) {
 
             var field = fieldsById[questionId] ;
 
             field.affectedPageRules.push(rule) ;
-        }, this) ;
+        }, this)) ;
     }
 
     function gatherAffectedFieldIds(fieldRule, action, fieldIdsByTag) {
 
         var affectedFieldIds = [] ;
 
-        _.each(fieldRule.actions, function(a) {
+        _.each(fieldRule.actions, _.bind(function(a) {
 
             if (a.action != action)
                 return ;
@@ -275,11 +275,11 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
             if (!fieldIdsByTag[a.tag])
                 return ;
 
-            _.each(fieldIdsByTag[a.tag], function(fieldId) {
+            _.each(fieldIdsByTag[a.tag], _.bind(function(fieldId) {
                 affectedFieldIds.push(fieldId) ;
-            }, this) ;
+            }, this)) ;
 
-        }, this) ;
+        }, this)) ;
 
         Logger.debug("affected field ids for rule " + fieldRule.index + " " + action, logpath) ;
         Logger.debug(affectedFieldIds, logpath) ;
@@ -294,7 +294,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
         var totalQuestions = 0 ;
         var validQuestions = 0 ;
 
-        _.each(page.relevantFields, function(field) {
+        _.each(page.relevantFields, _.bind(function(field) {
 
             if (field.superType != 'question')
                 return ;
@@ -311,7 +311,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
                     break ;
             } ;
 
-        }, this) ;
+        }, this)) ;
 
         if (validQuestions == 0 || validQuestions > 1)
             return false ;
@@ -349,7 +349,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
             var currentPage ;
 
-            _.each(s.fields, function(f, fIndex) {
+            _.each(s.fields, _.bind(function(f, fIndex) {
 
                 var field = _.cloneDeep(f) ;
 
@@ -378,7 +378,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
                     schema.fields.push(field) ;
                     schema.fieldsById[field.id] = field ;
                 }
-            }, this) ;
+            }, this)) ;
 
             Logger.debug("fields initialized", logpath) ;
 
@@ -389,7 +389,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
 
             schema.fieldRules = [] ;
-            _.each(s.fieldRules, function(fr, frIndex) {
+            _.each(s.fieldRules, _.bind(function(fr, frIndex) {
 
                 var fieldRule = _.cloneDeep(fr) ;
                 fieldRule.index = frIndex ;
@@ -398,7 +398,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
                 schema.fieldRules.push(fieldRule) ;
 
-            }, this) ;
+            }, this)) ;
 
             Logger.debug("field rules initialized", logpath) ;
 
@@ -407,7 +407,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
             //also attach to each field a list of relevant field rules that might be effected by answers to the field
             schema.pageRules = [] ;
 
-            _.each(s.pageRules, function(pr, prIndex) {
+            _.each(s.pageRules, _.bind(function(pr, prIndex) {
 
                 var pageRule = _.cloneDeep(pr) ;
                 pageRule.index = prIndex ;
@@ -416,7 +416,7 @@ askjs_core.factory('Initializer', ['Logger','TriggerStates', function(Logger, Tr
 
                 schema.pageRules.push(pageRule) ;
 
-            }, this) ;
+            }, this)) ;
 
             Logger.debug("set up page rules", "ask.logic.state.init") ;
 
